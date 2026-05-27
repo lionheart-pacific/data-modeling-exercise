@@ -9,11 +9,11 @@ import kotlin.time.Instant
 abstract class Step2PetRepositoryTest<TRepository : Step2PetRepository> : Step1PetRepositoryTest<TRepository>() {
     @Test
     fun `creating a pet records the initial weight in the chart`() {
-        val actor = Actor(10L, "George")
+        val userOneId = 10L
         val createdAt = Instant.parse("2026-01-01T00:00:00Z")
         testClock.setNow(createdAt)
 
-        val id = repository.create(PetRequest(name = "Fluffy", weight = 10.0), actor)
+        val id = repository.create(PetRequest(name = "Fluffy", weight = 10.0), userOneId)
 
         expectThat(repository.getWeightChart(id)).isNotNull().get { entries }.containsExactly(
             WeightEntry(recordedAt = createdAt, weight = 10.0),
@@ -22,13 +22,13 @@ abstract class Step2PetRepositoryTest<TRepository : Step2PetRepository> : Step1P
 
     @Test
     fun `updating weight appends to the chart in order`() {
-        val actor = Actor(10L, "George")
+        val userOneId = 10L
         testClock.setNow(Instant.parse("2026-01-01T00:00:00Z"))
-        val id = repository.create(PetRequest(name = "Fluffy", weight = 10.0), actor)
+        val id = repository.create(PetRequest(name = "Fluffy", weight = 10.0), userOneId)
         testClock.setNow(Instant.parse("2026-02-01T00:00:00Z"))
-        repository.updateWeight(id, 12.5, actor)
+        repository.updateWeight(id, 12.5, userOneId)
         testClock.setNow(Instant.parse("2026-03-01T00:00:00Z"))
-        repository.updateWeight(id, 15.0, actor)
+        repository.updateWeight(id, 15.0, userOneId)
 
         expectThat(repository.getWeightChart(id)).isNotNull().get { entries }.containsExactly(
             WeightEntry(recordedAt = Instant.parse("2026-01-01T00:00:00Z"), weight = 10.0),

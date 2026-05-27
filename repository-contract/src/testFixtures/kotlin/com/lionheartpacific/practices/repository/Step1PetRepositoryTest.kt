@@ -14,10 +14,10 @@ abstract class Step1PetRepositoryTest<TRepository : Step1PetRepository> : Abstra
 
     @Test
     fun `a created pet can be retrieved`() {
-        val actor = Actor(10L, "George")
+        val userOneId = 10L
         val request = PetRequest(name = "Fluffy", weight = 12.5)
 
-        val id = repository.create(request, actor)
+        val id = repository.create(request, userOneId)
 
         expectThat(repository.findById(id)).isNotNull().and {
             get { this.id }.isEqualTo(id)
@@ -28,10 +28,10 @@ abstract class Step1PetRepositoryTest<TRepository : Step1PetRepository> : Abstra
 
     @Test
     fun `a pet's weight can be updated`() {
-        val actor = Actor(10L, "George")
-        val id = repository.create(PetRequest(name = "Fluffy", weight = 12.5), actor)
+        val userOneId = 10L
+        val id = repository.create(PetRequest(name = "Fluffy", weight = 12.5), userOneId)
 
-        repository.updateWeight(id, 15.0, actor)
+        repository.updateWeight(id, 15.0, userOneId)
 
         expectThat(repository.findById(id))
             .isNotNull()

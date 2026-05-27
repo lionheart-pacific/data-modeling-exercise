@@ -1,6 +1,5 @@
 package com.lionheartpacific.practices.implementations.b
 
-import com.lionheartpacific.practices.repository.Actor
 import com.lionheartpacific.practices.repository.Pet
 import com.lionheartpacific.practices.repository.PetRequest
 import com.lionheartpacific.practices.repository.Step1PetRepository
@@ -11,11 +10,11 @@ class PetRepositoryB(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
 ) : Step1PetRepository {
-    override fun create(request: PetRequest, actor: Actor): Long {
+    override fun create(request: PetRequest, actorId: Long): Long {
         TODO("Not yet implemented")
     }
 
-    override fun updateWeight(id: Long, weight: Double, actor: Actor) {
+    override fun updateWeight(id: Long, weight: Double, actorId: Long) {
         TODO("Not yet implemented")
     }
 
