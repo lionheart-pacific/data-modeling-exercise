@@ -24,20 +24,20 @@ abstract class AbstractPetRepositoryTest {
 
     @Test
     fun `a created pet can be retrieved`() {
-        val request = PetRequest(name = "Fido", weight = 12.5)
+        val request = PetRequest(name = "Fluffy", weight = 12.5)
 
         val id = repository.create(request)
 
         expectThat(repository.findById(id)).isNotNull().and {
             get { this.id }.isEqualTo(id)
-            get { name }.isEqualTo("Fido")
+            get { name }.isEqualTo("Fluffy")
             get { weight }.isEqualTo(12.5)
         }
     }
 
     @Test
     fun `a pet's weight can be updated`() {
-        val id = repository.create(PetRequest(name = "Fido", weight = 12.5))
+        val id = repository.create(PetRequest(name = "Fluffy", weight = 12.5))
 
         repository.updateWeight(id, 15.0)
 
