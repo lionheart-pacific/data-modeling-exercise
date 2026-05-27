@@ -1,16 +1,21 @@
 package com.lionheartpacific.practices.implementations.b
 
+import com.lionheartpacific.practices.repository.Actor
 import com.lionheartpacific.practices.repository.Pet
-import com.lionheartpacific.practices.repository.PetRepository
 import com.lionheartpacific.practices.repository.PetRequest
+import com.lionheartpacific.practices.repository.Step1PetRepository
 import org.springframework.jdbc.core.simple.JdbcClient
+import kotlin.time.Clock
 
-class PetRepositoryB(private val jdbcClient: JdbcClient) : PetRepository {
-    override fun create(request: PetRequest): Long {
+class PetRepositoryB(
+    private val jdbcClient: JdbcClient,
+    private val clock: Clock,
+) : Step1PetRepository {
+    override fun create(request: PetRequest, actor: Actor): Long {
         TODO("Not yet implemented")
     }
 
-    override fun updateWeight(id: Long, weight: Double) {
+    override fun updateWeight(id: Long, weight: Double, actor: Actor) {
         TODO("Not yet implemented")
     }
 

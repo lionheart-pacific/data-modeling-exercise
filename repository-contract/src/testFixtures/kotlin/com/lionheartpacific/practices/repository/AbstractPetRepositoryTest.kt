@@ -1,48 +1,26 @@
 package com.lionheartpacific.practices.repository
 
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
-import strikt.assertions.isNull
+import javax.sql.DataSource
+import kotlin.time.Clock
+import kotlin.time.Instant
 
-abstract class AbstractPetRepositoryTest : AbstractRepositoryTest() {
-    protected lateinit var repository: PetRepository
+abstract class AbstractPetRepositoryTest<TRepository : Any> : AbstractRepositoryTest() {
+    protected val testClock = object : TestClock {
+        private var now: Instant = Instant.parse("2020-01-01T00:00:00Z")
+        override fun now(): Instant = now
 
-    protected abstract fun newRepository(): PetRepository
-
-    @BeforeEach
-    fun initializeRepository() {
-        repository = newRepository()
-    }
-
-    @Test
-    fun `getting a pet that doesn't exist returns null`() {
-        expectThat(repository.findById(1L)).isNull()
-    }
-
-    @Test
-    fun `a created pet can be retrieved`() {
-        val request = PetRequest(name = "Fluffy", weight = 12.5)
-
-        val id = repository.create(request)
-
-        expectThat(repository.findById(id)).isNotNull().and {
-            get { this.id }.isEqualTo(id)
-            get { name }.isEqualTo("Fluffy")
-            get { weight }.isEqualTo(12.5)
+        override fun setNow(value: Instant) {
+            now = value
         }
     }
 
-    @Test
-    fun `a pet's weight can be updated`() {
-        val id = repository.create(PetRequest(name = "Fluffy", weight = 12.5))
+    protected lateinit var repository: TRepository
 
-        repository.updateWeight(id, 15.0)
+    protected abstract fun createRepository(dataSource: DataSource, clock: Clock): TRepository
 
-        expectThat(repository.findById(id))
-            .isNotNull()
-            .get { weight }.isEqualTo(15.0)
+    @BeforeEach
+    fun initializeRepository() {
+        repository = createRepository(dataSource, testClock)
     }
 }

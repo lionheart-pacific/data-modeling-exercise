@@ -1,10 +1,11 @@
 package com.lionheartpacific.practices.implementations.a
 
-import com.lionheartpacific.practices.repository.AbstractPetRepositoryTest
-import com.lionheartpacific.practices.repository.PetRepository
+import com.lionheartpacific.practices.repository.Step1PetRepositoryTest
 import org.springframework.jdbc.core.simple.JdbcClient
+import javax.sql.DataSource
+import kotlin.time.Clock
 
-class PetRepositoryATest : AbstractPetRepositoryTest() {
-    override fun newRepository(): PetRepository =
-        PetRepositoryA(JdbcClient.create(dataSource))
+class PetRepositoryATest : Step1PetRepositoryTest() {
+    override fun createRepository(dataSource: DataSource, clock: Clock) =
+        PetRepositoryA(JdbcClient.create(dataSource), testClock)
 }
