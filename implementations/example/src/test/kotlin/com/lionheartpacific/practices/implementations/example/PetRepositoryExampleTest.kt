@@ -1,10 +1,10 @@
-package com.lionheartpacific.practices.implementations.b
+package com.lionheartpacific.practices.implementations.example
 
 import com.lionheartpacific.practices.repository.AbstractPetRepositoryTest
 import com.lionheartpacific.practices.repository.PetRepository
 import org.springframework.jdbc.core.simple.JdbcClient
 
-class PetRepositoryBTest : AbstractPetRepositoryTest() {
+class PetRepositoryExampleTest : AbstractPetRepositoryTest() {
     override fun newRepository(): PetRepository =
-        PetRepositoryB(JdbcClient.create(dataSource))
+        PetRepositoryExample(JdbcClient.create(dataSource))
 }

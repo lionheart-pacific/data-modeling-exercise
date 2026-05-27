@@ -14,5 +14,6 @@ includeBuild("build-tools/")
 include(":repository-contract")
 include(":implementations:implementation-a")
 include(":implementations:implementation-b")
+include(":implementations:example")
 
 rootProject.name = "data-modeling-exercise"

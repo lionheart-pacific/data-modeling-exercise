@@ -7,13 +7,13 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.isNull
 
-abstract class AbstractPetRepositoryTest {
+abstract class AbstractPetRepositoryTest : AbstractRepositoryTest() {
     protected lateinit var repository: PetRepository
 
     protected abstract fun newRepository(): PetRepository
 
     @BeforeEach
-    fun setUp() {
+    fun initializeRepository() {
         repository = newRepository()
     }
 

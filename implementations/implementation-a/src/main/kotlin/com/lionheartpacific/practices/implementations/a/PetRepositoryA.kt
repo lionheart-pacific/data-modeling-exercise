@@ -3,8 +3,9 @@ package com.lionheartpacific.practices.implementations.a
 import com.lionheartpacific.practices.repository.Pet
 import com.lionheartpacific.practices.repository.PetRepository
 import com.lionheartpacific.practices.repository.PetRequest
+import org.springframework.jdbc.core.simple.JdbcClient
 
-class PetRepositoryA : PetRepository {
+class PetRepositoryA(private val jdbcClient: JdbcClient) : PetRepository {
     override fun create(request: PetRequest): Long {
         TODO("Not yet implemented")
     }

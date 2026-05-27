@@ -6,6 +6,10 @@ kotlinxCoroutines = "1.10.2"
 junit = "6.0.3"
 strikt = "0.35.1"
 flyway = "12.6.0"
+springFramework = "7.0.0"
+testcontainers = "2.0.5"
+hikariCP = "7.0.2"
+postgresql = "42.7.11"
 
 [libraries]
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -15,7 +19,11 @@ kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 strikt-core = { module = "io.strikt:strikt-core", version.ref = "strikt" }
-flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-databasePostgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "springFramework" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
+hikariCP = { module = "com.zaxxer:HikariCP", version.ref = "hikariCP" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 
 [bundles]
 kotlinxEcosystem = ["kotlinxDatetime", "kotlinxSerialization", "kotlinxCoroutines"]

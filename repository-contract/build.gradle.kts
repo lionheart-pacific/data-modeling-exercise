@@ -6,4 +6,8 @@ plugins {
 dependencies {
     testFixturesApi(libs.junit.jupiter)
     testFixturesApi(libs.strikt.core)
+    testFixturesApi(libs.testcontainers.postgresql)
+    testFixturesApi(libs.hikariCP)
+    testFixturesApi(libs.flyway.databasePostgresql)
+    testFixturesRuntimeOnly(libs.postgresql)
 }
