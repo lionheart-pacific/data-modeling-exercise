@@ -5,12 +5,11 @@ import com.lionheartpacific.practices.repository.PetRepository
 import java.util.concurrent.ConcurrentHashMap
 
 class PetRepositoryB : PetRepository {
-    private val store = ConcurrentHashMap<Long, Pet>()
-
     override fun save(pet: Pet): Pet {
-        store[pet.id] = pet
-        return pet
+        TODO("Not yet implemented")
     }
 
-    override fun findById(id: Long): Pet? = store[id]
+    override fun findById(id: Long): Pet? {
+        TODO("Not yet implemented")
+    }
 }
