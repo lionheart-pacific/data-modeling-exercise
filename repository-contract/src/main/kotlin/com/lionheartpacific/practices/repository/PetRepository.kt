@@ -13,3 +13,8 @@ interface Step2PetRepository : Step1PetRepository {
 interface Step3PetRepository : Step2PetRepository {
     fun getWeighInLeaderboard(window: kotlin.time.Duration): WeighInLeaderboard
 }
+
+interface Step4PetRepository : Step3PetRepository {
+    fun updateName(id: Long, newName: String, actorId: Long)
+    fun findPetIdsByAnyName(name: String): List<Long>
+}
