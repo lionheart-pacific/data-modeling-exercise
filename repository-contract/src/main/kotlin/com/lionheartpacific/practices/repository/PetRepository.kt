@@ -3,6 +3,7 @@ package com.lionheartpacific.practices.repository
 interface Step1PetRepository {
     fun create(request: PetRequest, actorId: Long): Long
     fun updateWeight(id: Long, weight: Double, actorId: Long)
+    fun updateStatus(id: Long, status: PetStatus, actorId: Long)
     fun findById(id: Long): Pet?
 }
 

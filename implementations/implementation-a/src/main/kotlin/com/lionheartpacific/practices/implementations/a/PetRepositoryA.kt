@@ -2,6 +2,7 @@ package com.lionheartpacific.practices.implementations.a
 
 import com.lionheartpacific.practices.repository.Pet
 import com.lionheartpacific.practices.repository.PetRequest
+import com.lionheartpacific.practices.repository.PetStatus
 import com.lionheartpacific.practices.repository.Step1PetRepository
 import org.springframework.jdbc.core.simple.JdbcClient
 import kotlin.time.Clock
@@ -15,6 +16,10 @@ class PetRepositoryA(
     }
 
     override fun updateWeight(id: Long, weight: Double, actorId: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateStatus(id: Long, status: PetStatus, actorId: Long) {
         TODO("Not yet implemented")
     }
 

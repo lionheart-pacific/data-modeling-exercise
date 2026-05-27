@@ -23,6 +23,7 @@ abstract class Step1PetRepositoryTest<TRepository : Step1PetRepository> : Abstra
             get { this.id }.isEqualTo(id)
             get { name }.isEqualTo("Fluffy")
             get { weight }.isEqualTo(12.5)
+            get { status }.isEqualTo(PetStatus.AVAILABLE)
         }
     }
 
@@ -36,5 +37,17 @@ abstract class Step1PetRepositoryTest<TRepository : Step1PetRepository> : Abstra
         expectThat(repository.findById(id))
             .isNotNull()
             .get { weight }.isEqualTo(15.0)
+    }
+
+    @Test
+    fun `a pet's status can be toggled between available and adopted`() {
+        val userOneId = 10L
+        val id = repository.create(PetRequest(name = "Fluffy", weight = 12.5), userOneId)
+
+        repository.updateStatus(id, PetStatus.ADOPTED, userOneId)
+        expectThat(repository.findById(id)).isNotNull().get { status }.isEqualTo(PetStatus.ADOPTED)
+
+        repository.updateStatus(id, PetStatus.AVAILABLE, userOneId)
+        expectThat(repository.findById(id)).isNotNull().get { status }.isEqualTo(PetStatus.AVAILABLE)
     }
 }
