@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import strikt.assertions.isNotNull
 import strikt.assertions.isNull
 
 abstract class AbstractPetRepositoryTest {
@@ -27,7 +28,11 @@ abstract class AbstractPetRepositoryTest {
 
         val id = repository.create(request)
 
-        expectThat(repository.findById(id)).isEqualTo(Pet(id = id, name = "Fido", weight = 12.5))
+        expectThat(repository.findById(id)).isNotNull().and {
+            get { this.id }.isEqualTo(id)
+            get { name }.isEqualTo("Fido")
+            get { weight }.isEqualTo(12.5)
+        }
     }
 
     @Test
@@ -36,6 +41,8 @@ abstract class AbstractPetRepositoryTest {
 
         repository.updateWeight(id, 15.0)
 
-        expectThat(repository.findById(id)?.weight).isEqualTo(15.0)
+        expectThat(repository.findById(id))
+            .isNotNull()
+            .get { weight }.isEqualTo(15.0)
     }
 }
