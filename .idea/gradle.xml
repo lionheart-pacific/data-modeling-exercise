@@ -6,9 +6,9 @@
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
-              <build path="$PROJECT_DIR$/buildSrc" name="buildSrc">
+              <build path="$PROJECT_DIR$/build-tools" name="build-tools">
                 <projects>
-                  <project path="$PROJECT_DIR$/buildSrc" />
+                  <project path="$PROJECT_DIR$/build-tools" />
                 </projects>
               </build>
             </builds>
@@ -18,9 +18,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/buildSrc" />
-            <option value="$PROJECT_DIR$/utils" />
+            <option value="$PROJECT_DIR$/build-tools" />
+            <option value="$PROJECT_DIR$/implementations" />
+            <option value="$PROJECT_DIR$/implementations/implementation-a" />
+            <option value="$PROJECT_DIR$/implementations/implementation-b" />
+            <option value="$PROJECT_DIR$/repository-contract" />
           </set>
         </option>
         <option name="myGradleHome" value="" />

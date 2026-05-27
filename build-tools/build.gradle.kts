@@ -12,4 +12,6 @@ kotlin {
 dependencies {
     // Add a dependency on the Kotlin Gradle plugin, so that convention plugins can apply it.
     implementation(libs.kotlinGradlePlugin)
+    // Exposes the typesafe `libs.*` accessor (LibrariesForLibs) to precompiled script plugins.
+    implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }
