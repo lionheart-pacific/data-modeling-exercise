@@ -1,23 +1,13 @@
 # data-modeling-exercise
 
-This project uses [Gradle](https://gradle.org/).
-To build and run the application, use the *Gradle* tool window by clicking the Gradle icon in the right-hand toolbar,
-or run it directly from the terminal:
+Supporting material for the Lionheart Pacific Practices Learning Club. Worked through alongside a presentation.
 
-* Run `./gradlew run` to build and run the application.
-* Run `./gradlew build` to only build the application.
-* Run `./gradlew check` to run all checks, including tests.
-* Run `./gradlew clean` to clean all build outputs.
+## How it works
 
-Note the usage of the Gradle Wrapper (`./gradlew`).
-This is the suggested way to use Gradle in production projects.
+Each module under `implementations/` is a different data-modeling approach. You work through them side by side, comparing how each holds up as the requirements grow at each step. The contract and supporting test fixtures live under `repository-contract/`. To complete a step, edit the implementation and its Flyway migration until the inherited tests pass.
 
-[Learn more about the Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
+To advance to the next step, change the interface your repository implements and the abstract test your concrete test extends. The new step adds tests on top of the previous one.
 
-[Learn more about Gradle tasks](https://docs.gradle.org/current/userguide/command_line_interface.html#common_tasks).
+`implementations/example/` is a naive Step 1 implementation included to demonstrate the mechanics: Spring's JdbcClient, Flyway migrations, etc.
 
-This project follows the suggested multi-module setup and consists of the `app` and `utils` subprojects.
-The shared build logic was extracted to a convention plugin located in `buildSrc`.
-
-This project uses a version catalog (see `gradle/libs.versions.toml`) to declare and version dependencies
-and both a build cache and a configuration cache (see `gradle.properties`).
+Use the `Tests` run configuration to run all tests. Requires Docker.
