@@ -6,7 +6,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.isNull
 
-abstract class Step1PetRepositoryTest : AbstractPetRepositoryTest<Step1PetRepository>() {
+abstract class Step1PetRepositoryTest<TRepository : Step1PetRepository> : AbstractPetRepositoryTest<TRepository>() {
     @Test
     fun `getting a pet that doesn't exist returns null`() {
         expectThat(repository.findById(1L)).isNull()

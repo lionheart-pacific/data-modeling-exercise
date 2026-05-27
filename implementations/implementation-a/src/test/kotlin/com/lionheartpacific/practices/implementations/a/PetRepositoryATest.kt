@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.simple.JdbcClient
 import javax.sql.DataSource
 import kotlin.time.Clock
 
-class PetRepositoryATest : Step1PetRepositoryTest() {
+class PetRepositoryATest : Step1PetRepositoryTest<PetRepositoryA>() {
     override fun createRepository(dataSource: DataSource, clock: Clock) =
-        PetRepositoryA(JdbcClient.create(dataSource), testClock)
+        PetRepositoryA(JdbcClient.create(dataSource), clock)
 }

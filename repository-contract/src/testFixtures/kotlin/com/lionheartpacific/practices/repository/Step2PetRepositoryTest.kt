@@ -6,7 +6,7 @@ import strikt.assertions.containsExactly
 import strikt.assertions.isNotNull
 import kotlin.time.Instant
 
-abstract class Step2PetRepositoryTest : AbstractPetRepositoryTest<Step2PetRepository>() {
+abstract class Step2PetRepositoryTest<TRepository : Step2PetRepository> : Step1PetRepositoryTest<TRepository>() {
     @Test
     fun `creating a pet records the initial weight in the chart`() {
         val actor = Actor(10L, "George")
