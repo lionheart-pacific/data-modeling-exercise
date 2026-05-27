@@ -1,11 +1,10 @@
-# Step 3: Staff of the month
+# Step 3: The vet's request
 
-It's been a year since the system went live. Dana wants to do something nice at the next all-hands. She has been watching staff and volunteers carry pets back and forth from the scale all day, and a few of them are absolute machines about it. She wants to recognize them.
+Dr. Patel, the volunteer vet, came in for her usual Tuesday rounds visibly frustrated. She's been trying to monitor pets' health while they're at the shelter — watching for whether the underweight intakes are recovering, whether the older dogs are holding steady, whether anyone is losing weight unexpectedly. But the weight field only shows the latest number. Every time staff re-weigh a pet, the previous reading is gone.
 
-Specifically, she wants a leaderboard: who has performed the most weigh-ins in a given period. Last 30 days for the monthly meeting. She also wants flexibility — 90 days for quarterly reviews, a full year for the holiday party.
+She wants the system to remember every weigh-in, not just the latest one, so she can see the trend. She wants to pull up a weight chart for any pet — a chronological list of every recorded weight.
 
 ## Acceptance criteria
 
-- The system produces a ranked list of actors (staff and volunteers performing weigh-ins), ordered by the number of weigh-ins they have performed within a configurable time window.
-- Actors with no weigh-ins in the window are excluded.
-- The window is a parameter, not hard-coded.
+- Every weight recorded (whether at intake or a subsequent weigh-in) is preserved with the time it was recorded.
+- The system can produce a chart of a pet's weight history, ordered from earliest to most recent.

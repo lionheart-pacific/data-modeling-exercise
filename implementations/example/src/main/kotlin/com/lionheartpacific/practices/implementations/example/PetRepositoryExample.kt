@@ -14,20 +14,12 @@ class PetRepositoryExample(
 ) : Step1PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
-        jdbcClient.sql("INSERT INTO pets (name, weight, status) VALUES (:name, :weight, :status)")
+        jdbcClient.sql("INSERT INTO pets (name, status) VALUES (:name, :status)")
             .param("name", request.name)
-            .param("weight", request.weight)
             .param("status", PetStatus.AVAILABLE.name)
             .update(keyHolder, "id")
         return keyHolder.key?.toLong()
             ?: error("INSERT did not return a generated key")
-    }
-
-    override fun updateWeight(id: Long, weight: Double, actorId: Long) {
-        jdbcClient.sql("UPDATE pets SET weight = :weight WHERE id = :id")
-            .param("weight", weight)
-            .param("id", id)
-            .update()
     }
 
     override fun updateStatus(id: Long, status: PetStatus, actorId: Long) {
@@ -38,14 +30,14 @@ class PetRepositoryExample(
     }
 
     override fun findById(id: Long): Pet? =
-        jdbcClient.sql("SELECT id, name, weight, status FROM pets WHERE id = :id")
+        jdbcClient.sql("SELECT id, name, status FROM pets WHERE id = :id")
             .param("id", id)
             .query { resultSet, _ ->
                 Pet(
                     id = resultSet.getLong("id"),
                     name = resultSet.getString("name"),
-                    weight = resultSet.getDouble("weight"),
                     status = PetStatus.valueOf(resultSet.getString("status")),
+                    weight = null,
                 )
             }
             .optional()

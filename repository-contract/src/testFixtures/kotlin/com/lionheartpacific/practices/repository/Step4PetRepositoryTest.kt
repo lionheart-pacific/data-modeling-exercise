@@ -2,55 +2,103 @@ package com.lionheartpacific.practices.repository
 
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
+import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.doesNotContain
 import strikt.assertions.isEmpty
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
 abstract class Step4PetRepositoryTest<TRepository : Step4PetRepository> : Step3PetRepositoryTest<TRepository>() {
     @Test
-    fun `updating a name changes what findById returns`() {
-        val userOneId = 10L
-        val id = repository.create(PetRequest("Biscuit", 12.5), userOneId)
-
-        repository.updateName(id, "Tabitha", userOneId)
-
-        expectThat(repository.findById(id)).isNotNull().get { name }.isEqualTo("Tabitha")
+    fun `the leaderboard is empty when no pets have been weighed`() {
+        expectThat(repository.getWeighInLeaderboard(30.days).entries).isEmpty()
     }
 
     @Test
-    fun `a pet's current name can be found`() {
+    fun `the window controls which weigh-ins are counted`() {
         val userOneId = 10L
-        val id = repository.create(PetRequest("Biscuit", 12.5), userOneId)
+        val pet = repository.create(PetRequest("Fluffy"), userOneId)
 
-        expectThat(repository.findPetIdsByAnyName("Biscuit")).containsExactlyInAnyOrder(id)
+        testClock.setNow(Instant.parse("2026-01-01T00:00:00Z"))
+        repository.updateWeight(pet, 10.0, userOneId)
+
+        testClock.setNow(Instant.parse("2026-01-20T00:00:00Z"))
+        repository.updateWeight(pet, 11.0, userOneId)
+
+        testClock.setNow(Instant.parse("2026-02-01T00:00:00Z"))
+
+        expectThat(repository.getWeighInLeaderboard(60.days).entries)
+            .containsExactly(WeighInLeaderboardEntry(actorId = userOneId, weighIns = 2))
+
+        expectThat(repository.getWeighInLeaderboard(15.days).entries)
+            .containsExactly(WeighInLeaderboardEntry(actorId = userOneId, weighIns = 1))
     }
 
     @Test
-    fun `a pet's former name can be found`() {
-        val userOneId = 10L
-        val id = repository.create(PetRequest("Biscuit", 12.5), userOneId)
-        repository.updateName(id, "Tabitha", userOneId)
+    fun `the leaderboard counts each actor's weigh-ins`() {
+        val userOneId = 1L
+        val userTwoId = 2L
+        val userThreeId = 3L
 
-        expectThat(repository.findPetIdsByAnyName("Biscuit")).containsExactlyInAnyOrder(id)
+        val fluffy = repository.create(PetRequest("Fluffy"), userOneId)
+        val sprout = repository.create(PetRequest("Sprout"), userTwoId)
+
+        testClock.setNow(Instant.parse("2026-01-15T00:00:00Z"))
+        repository.updateWeight(fluffy, 10.0, userOneId)
+        repository.updateWeight(fluffy, 11.0, userOneId)
+        repository.updateWeight(sprout, 5.0, userTwoId)
+        repository.updateWeight(fluffy, 12.0, userThreeId)
+        repository.updateWeight(sprout, 6.0, userThreeId)
+        repository.updateWeight(sprout, 7.0, userThreeId)
+
+        testClock.setNow(Instant.parse("2026-01-16T00:00:00Z"))
+
+        expectThat(repository.getWeighInLeaderboard(30.days).entries)
+            .containsExactlyInAnyOrder(
+                WeighInLeaderboardEntry(actorId = userOneId, weighIns = 2),
+                WeighInLeaderboardEntry(actorId = userTwoId, weighIns = 1),
+                WeighInLeaderboardEntry(actorId = userThreeId, weighIns = 3),
+            )
     }
 
     @Test
-    fun `a name shared in history across pets surfaces all of them`() {
-        val userOneId = 10L
-        val firstId = repository.create(PetRequest("Biscuit", 12.5), userOneId)
-        repository.updateName(firstId, "Tabitha", userOneId)
-        val secondId = repository.create(PetRequest("Biscuit", 8.0), userOneId)
+    fun `the leaderboard orders actors by weigh-in count descending`() {
+        val userOneId = 1L
+        val userTwoId = 2L
+        val userThreeId = 3L
 
-        expectThat(repository.findPetIdsByAnyName("Biscuit"))
-            .containsExactlyInAnyOrder(firstId, secondId)
+        val pet = repository.create(PetRequest("Fluffy"), userTwoId)
+
+        testClock.setNow(Instant.parse("2026-01-15T00:00:00Z"))
+        repository.updateWeight(pet, 10.0, userTwoId)
+        repository.updateWeight(pet, 11.0, userThreeId)
+        repository.updateWeight(pet, 12.0, userThreeId)
+        repository.updateWeight(pet, 13.0, userThreeId)
+        repository.updateWeight(pet, 14.0, userOneId)
+        repository.updateWeight(pet, 15.0, userOneId)
+
+        testClock.setNow(Instant.parse("2026-01-16T00:00:00Z"))
+
+        expectThat(repository.getWeighInLeaderboard(30.days).entries.map { it.actorId })
+            .containsExactly(userThreeId, userOneId, userTwoId)
     }
 
     @Test
-    fun `a name no pet has ever had returns empty`() {
-        val userOneId = 10L
-        repository.create(PetRequest("Biscuit", 12.5), userOneId)
+    fun `actors with no in-window weigh-ins are excluded`() {
+        val userOneId = 1L
+        val userTwoId = 2L
+        val pet = repository.create(PetRequest("Fluffy"), userTwoId)
 
-        expectThat(repository.findPetIdsByAnyName("Snickerdoodle")).isEmpty()
+        testClock.setNow(Instant.parse("2026-01-01T00:00:00Z"))
+        repository.updateWeight(pet, 10.0, userTwoId)
+
+        testClock.setNow(Instant.parse("2026-02-15T00:00:00Z"))
+        repository.updateWeight(pet, 11.0, userOneId)
+
+        testClock.setNow(Instant.parse("2026-03-01T00:00:00Z"))
+
+        expectThat(repository.getWeighInLeaderboard(30.days).entries.map { it.actorId })
+            .doesNotContain(userTwoId)
     }
 }

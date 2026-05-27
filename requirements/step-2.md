@@ -1,10 +1,11 @@
-# Step 2: Tracking the trend
+# Step 2: How big is the pet?
 
-The system has been live for a few months. Dr. Patel, the volunteer vet, says the weight column is great — except it forgets. When a pet's weight goes from 8.0 to 9.5 to 11.2 over a few weeks, that's a healthy recovery story. When it goes from 8.0 to 7.5 to 6.8, that's a problem nobody is flagging because they're only ever seeing the latest number.
+A pattern has shown up at the front desk. Almost every call from a prospective adopter ends up at the same question: "How big is she?" Staff have been answering with their best guess — "medium-sized, maybe forty pounds?" — and then weighing the pet later to confirm. Twice now a family showed up expecting one kind of dog and found another.
 
-She wants the system to remember every weigh-in, not just the latest one. She also wants to pull up a weight chart for any pet — a chronological list of every recorded weight.
+Dana wants weight on file. At intake, every pet goes on the scale. Re-weighings happen at vet check-ins or whenever staff notice the pet looks different. The latest number is what the front desk reads off to callers.
 
 ## Acceptance criteria
 
-- Every weight recorded (whether at intake or a subsequent weigh-in) is preserved with the time it was recorded.
-- The system can produce a chart of a pet's weight history, ordered from earliest to most recent.
+- A pet's weight can be recorded.
+- A pet's weight can be updated.
+- Looking up a pet shows the current (latest) recorded weight.

@@ -15,10 +15,6 @@ class PetRepositoryB(
         TODO("Not yet implemented")
     }
 
-    override fun updateWeight(id: Long, weight: Double, actorId: Long) {
-        TODO("Not yet implemented")
-    }
-
     override fun updateStatus(id: Long, status: PetStatus, actorId: Long) {
         TODO("Not yet implemented")
     }
