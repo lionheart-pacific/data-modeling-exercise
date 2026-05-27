@@ -10,6 +10,9 @@ plugins {
 dependencies {
     // Project "app" depends on project "utils". (Project paths are separated with ":", so ":utils" refers to the top-level "utils" project.)
     implementation(project(":utils"))
+
+    testImplementation(libs.bundles.jvmTest.implementation)
+    testRuntimeOnly(libs.bundles.jvmTest.runtime)
 }
 
 application {
