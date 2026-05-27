@@ -2,10 +2,14 @@ package com.lionheartpacific.practices.implementations.b
 
 import com.lionheartpacific.practices.repository.Pet
 import com.lionheartpacific.practices.repository.PetRepository
-import java.util.concurrent.ConcurrentHashMap
+import com.lionheartpacific.practices.repository.PetRequest
 
 class PetRepositoryB : PetRepository {
-    override fun save(pet: Pet): Pet {
+    override fun create(request: PetRequest): Long {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateWeight(id: Long, weight: Double) {
         TODO("Not yet implemented")
     }
 

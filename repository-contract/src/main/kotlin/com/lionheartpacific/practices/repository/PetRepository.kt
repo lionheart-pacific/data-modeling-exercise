@@ -1,6 +1,7 @@
 package com.lionheartpacific.practices.repository
 
 interface PetRepository {
-    fun save(pet: Pet): Pet
+    fun create(request: PetRequest): Long
+    fun updateWeight(id: Long, weight: Double)
     fun findById(id: Long): Pet?
 }
