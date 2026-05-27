@@ -20,4 +20,8 @@ plugins {
 // matches the reference project layout and avoids invalidating the main build's task graph on edits.
 includeBuild("build-tools/")
 
+include(":repository-contract")
+include(":implementations:implementation-a")
+include(":implementations:implementation-b")
+
 rootProject.name = "data-modeling-exercise"

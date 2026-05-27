@@ -1,0 +1,2 @@
+-- Placeholder migration for implementation A.
+-- Define the schema here once a JDBC-backed PetRepository implementation is added.
