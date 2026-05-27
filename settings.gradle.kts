@@ -12,8 +12,8 @@ plugins {
 includeBuild("build-tools/")
 
 include(":repository-contract")
-include(":implementations:implementation-a")
-include(":implementations:implementation-b")
+include(":implementations:audit-log")
+include(":implementations:versioned-objects")
 include(":implementations:example")
 
 rootProject.name = "data-modeling-exercise"
