@@ -1,0 +1,2 @@
+ALTER TABLE pets
+    ADD COLUMN weight DECIMAL(5, 2);
