@@ -1,19 +1,17 @@
 package com.lionheartpacific.practices.implementations.versionedobjects
 
-import com.lionheartpacific.practices.repository.Pet
-import com.lionheartpacific.practices.repository.PetRequest
-import com.lionheartpacific.practices.repository.PetStatus
-import com.lionheartpacific.practices.repository.Step2PetRepository
+import com.lionheartpacific.practices.repository.*
 import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import java.sql.Timestamp
 import kotlin.time.Clock
 import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 class PetRepositoryVersionedObjects(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
-) : Step2PetRepository {
+) : Step3PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
         jdbcClient.sql("INSERT INTO pets (name, status, valid_from) VALUES (:name, :status, :valid_from)")
@@ -44,12 +42,12 @@ class PetRepositoryVersionedObjects(
     override fun findById(id: Long): Pet? {
         return jdbcClient.sql("SELECT pet_id, name, status, weight FROM pets WHERE pet_id = :pet_id AND valid_to IS NULL")
             .param("pet_id", id)
-            .query { result, _ ->
+            .query { resultSet, _ ->
                 Pet(
-                    id = result.getLong("pet_id"),
-                    name = result.getString("name"),
-                    status = PetStatus.valueOf(result.getString("status")),
-                    weight = result.getDouble("weight"),
+                    id = resultSet.getLong("pet_id"),
+                    name = resultSet.getString("name"),
+                    status = PetStatus.valueOf(resultSet.getString("status")),
+                    weight = resultSet.getDouble("weight"),
                 )
 
             }
@@ -72,5 +70,18 @@ class PetRepositoryVersionedObjects(
             .param("weight", weight)
             .param("valid_from", Timestamp.from(clock.now().toJavaInstant()))
             .update()
+    }
+
+    override fun getWeightChart(id: Long): WeightChart? {
+        return jdbcClient.sql("SELECT valid_from, weight FROM pets WHERE pet_id = :pet_id AND weight IS NOT NULL")
+            .param("pet_id", id)
+            .query { resultSet, _ ->
+                WeightEntry(
+                    recordedAt = resultSet.getTimestamp("valid_from").toInstant().toKotlinInstant(),
+                    weight = resultSet.getDouble("weight"),
+                )
+            }
+            .list()
+            .let { WeightChart(entries = it) }
     }
 }

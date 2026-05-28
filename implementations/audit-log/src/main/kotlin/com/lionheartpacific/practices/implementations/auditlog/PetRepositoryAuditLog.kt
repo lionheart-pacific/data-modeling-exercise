@@ -1,18 +1,17 @@
 package com.lionheartpacific.practices.implementations.auditlog
 
-import com.lionheartpacific.practices.repository.Pet
-import com.lionheartpacific.practices.repository.PetRequest
-import com.lionheartpacific.practices.repository.PetStatus
-import com.lionheartpacific.practices.repository.Step1PetRepository
-import com.lionheartpacific.practices.repository.Step2PetRepository
+import com.lionheartpacific.practices.repository.*
 import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.jdbc.support.GeneratedKeyHolder
+import java.sql.Timestamp
 import kotlin.time.Clock
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 class PetRepositoryAuditLog(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
-) : Step2PetRepository {
+) : Step3PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
         jdbcClient.sql("INSERT INTO pets (name, status) VALUES (:name, :status)")
@@ -50,5 +49,24 @@ class PetRepositoryAuditLog(
             .param("id", id)
             .param("weight", weight)
             .update()
+
+        jdbcClient.sql("INSERT INTO weight_history (pet_id, weight, recorded_at) VALUES (:pet_id, :weight, :recorded_at)")
+            .param("pet_id", id)
+            .param("weight", weight)
+            .param("recorded_at", Timestamp.from(clock.now().toJavaInstant()))
+            .update()
+    }
+
+    override fun getWeightChart(id: Long): WeightChart? {
+        return jdbcClient.sql("SELECT weight, recorded_at FROM weight_history WHERE pet_id = :pet_id")
+            .param("pet_id", id)
+            .query { resultSet, _ ->
+                WeightEntry(
+                    recordedAt = resultSet.getTimestamp("recorded_at").toInstant().toKotlinInstant(),
+                    weight = resultSet.getDouble("weight")
+                )
+            }
+            .list()
+            .let { WeightChart(entries = it) }
     }
 }
