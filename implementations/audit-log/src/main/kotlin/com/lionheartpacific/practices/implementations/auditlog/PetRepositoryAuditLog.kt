@@ -5,6 +5,7 @@ import com.lionheartpacific.practices.repository.PetRequest
 import com.lionheartpacific.practices.repository.PetStatus
 import com.lionheartpacific.practices.repository.Step1PetRepository
 import org.springframework.jdbc.core.simple.JdbcClient
+import org.springframework.jdbc.support.GeneratedKeyHolder
 import kotlin.time.Clock
 
 class PetRepositoryAuditLog(
@@ -12,14 +13,34 @@ class PetRepositoryAuditLog(
     private val clock: Clock,
 ) : Step1PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
-        TODO("Not yet implemented")
+        val keyHolder = GeneratedKeyHolder()
+        jdbcClient.sql("INSERT INTO pets (name, status) VALUES (:name, :status)")
+            .param("name", request.name)
+            .param("status", PetStatus.AVAILABLE.name)
+            .update(keyHolder, "id")
+        return keyHolder.key?.toLong() ?: error("INSERT did not return a generated key")
     }
 
     override fun updateStatus(id: Long, status: PetStatus, actorId: Long) {
-        TODO("Not yet implemented")
+        jdbcClient.sql("UPDATE pets SET status = :status WHERE id = :id")
+            .param("id", id)
+            .param("status", status.name)
+            .update()
     }
 
     override fun findById(id: Long): Pet? {
-        TODO("Not yet implemented")
+        return jdbcClient.sql("SELECT id, name, status FROM pets WHERE id = :id")
+            .param("id", id)
+            .query { result,_ ->
+                Pet(
+                    id = result.getLong("id"),
+                    name = result.getString("name"),
+                    status = PetStatus.valueOf(result.getString("status")),
+                    weight = null
+                )
+
+            }
+            .optional()
+            .orElse(null)
     }
 }

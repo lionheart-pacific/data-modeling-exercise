@@ -1,0 +1,5 @@
+CREATE TABLE pets (
+    id BIGSERIAL PRIMARY KEY ,
+    name TEXT NOT NULL ,
+    status TEXT NOT NULL
+)

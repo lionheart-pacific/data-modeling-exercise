@@ -5,21 +5,54 @@ import com.lionheartpacific.practices.repository.PetRequest
 import com.lionheartpacific.practices.repository.PetStatus
 import com.lionheartpacific.practices.repository.Step1PetRepository
 import org.springframework.jdbc.core.simple.JdbcClient
+import org.springframework.jdbc.support.GeneratedKeyHolder
+import java.sql.Timestamp
 import kotlin.time.Clock
+import kotlin.time.toJavaInstant
 
 class PetRepositoryVersionedObjects(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
 ) : Step1PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
-        TODO("Not yet implemented")
+        val keyHolder = GeneratedKeyHolder()
+        jdbcClient.sql("INSERT INTO pets (name, status, valid_from) VALUES (:name, :status, :valid_from)")
+            .param("name", request.name)
+            .param("status", PetStatus.AVAILABLE.name)
+            .param("valid_from", Timestamp.from(clock.now().toJavaInstant()))
+            .update(keyHolder, "id")
+        return keyHolder.key?.toLong() ?: error("INSERT did not return a generated key")
     }
 
     override fun updateStatus(id: Long, status: PetStatus, actorId: Long) {
-        TODO("Not yet implemented")
+        val pet = findById(id) ?: return
+
+        jdbcClient.sql("UPDATE pets SET valid_to = :valid_to WHERE pet_id = :pet_id")
+            .param("pet_id", id)
+            .param("valid_to", Timestamp.from(clock.now().toJavaInstant()))
+            .update()
+
+        jdbcClient.sql("INSERT INTO pets (pet_id, name, status, valid_from) VALUES (:pet_id, :name, :status, :valid_from)")
+            .param("pet_id", pet.id)
+            .param("name", pet.name)
+            .param("status", status.name)
+            .param("valid_from", Timestamp.from(clock.now().toJavaInstant()))
+            .update()
     }
 
     override fun findById(id: Long): Pet? {
-        TODO("Not yet implemented")
+        return jdbcClient.sql("SELECT pet_id, name, status FROM pets WHERE pet_id = :pet_id AND valid_to IS NULL")
+            .param("pet_id", id)
+            .query { result, _ ->
+                Pet(
+                    id = result.getLong("pet_id"),
+                    name = result.getString("name"),
+                    status = PetStatus.valueOf(result.getString("status")),
+                    weight = null
+                )
+
+            }
+            .optional()
+            .orElse(null)
     }
 }
