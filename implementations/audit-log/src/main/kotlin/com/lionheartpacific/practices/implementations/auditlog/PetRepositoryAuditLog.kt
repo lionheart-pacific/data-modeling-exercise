@@ -12,14 +12,21 @@ import kotlin.time.toKotlinInstant
 class PetRepositoryAuditLog(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
-) : Step4PetRepository {
+) : Step5PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
         jdbcClient.sql("INSERT INTO pets (name, status) VALUES (:name, :status)")
             .param("name", request.name)
             .param("status", PetStatus.AVAILABLE.name)
             .update(keyHolder, "id")
-        return keyHolder.key?.toLong() ?: error("INSERT did not return a generated key")
+        val petId = keyHolder.key?.toLong() ?: error("INSERT did not return a generated key")
+        jdbcClient.sql("INSERT INTO name_history (pet_id, name, recorded_at, actor_id) VALUES (:pet_id, :name, :recorded_at, :actor_id)")
+            .param("pet_id", petId)
+            .param("name", request.name)
+            .param("recorded_at", Timestamp.from(clock.now().toJavaInstant()))
+            .param("actor_id", actorId)
+            .update()
+        return petId
     }
 
     override fun updateStatus(id: Long, status: PetStatus, actorId: Long) {
@@ -94,5 +101,26 @@ class PetRepositoryAuditLog(
             }
             .list()
             .let { WeighInLeaderboard(entries = it) }
+    }
+
+    override fun updateName(id: Long, newName: String, actorId: Long) {
+        jdbcClient.sql("UPDATE pets SET name = :name WHERE id = :id")
+            .param("id", id)
+            .param("name", newName)
+            .update()
+
+        jdbcClient.sql("INSERT INTO name_history (pet_id, name, recorded_at, actor_id) VALUES (:pet_id, :name, :recorded_at, :actor_id)")
+            .param("pet_id", id)
+            .param("name", newName)
+            .param("recorded_at", Timestamp.from(clock.now().toJavaInstant()))
+            .param("actor_id", actorId)
+            .update()
+    }
+
+    override fun findPetIdsByAnyName(name: String): List<Long> {
+        return jdbcClient.sql("SELECT pet_id FROM name_history WHERE name = :name")
+            .param("name", name)
+            .query { resultSet, _ -> resultSet.getLong("pet_id") }
+            .list()
     }
 }

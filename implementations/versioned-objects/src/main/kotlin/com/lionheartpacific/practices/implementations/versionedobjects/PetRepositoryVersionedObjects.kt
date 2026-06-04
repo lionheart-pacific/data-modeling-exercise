@@ -12,7 +12,7 @@ import kotlin.time.toKotlinInstant
 class PetRepositoryVersionedObjects(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
-) : Step4PetRepository {
+) : Step5PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
         jdbcClient.sql("INSERT INTO pets (name, status, valid_from, actor_id) VALUES (:name, :status, :valid_from, :actor_id)")
@@ -111,5 +111,30 @@ class PetRepositoryVersionedObjects(
             }
             .list()
             .let { WeighInLeaderboard(entries = it) }
+    }
+
+    override fun updateName(id: Long, newName: String, actorId: Long) {
+        val pet = findById(id) ?: return
+
+        jdbcClient.sql("UPDATE pets SET valid_to = :valid_to WHERE pet_id = :pet_id")
+            .param("pet_id", id)
+            .param("valid_to", Timestamp.from(clock.now().toJavaInstant()))
+            .update()
+
+        jdbcClient.sql("INSERT INTO pets (pet_id, name, status, weight, valid_from, actor_id) VALUES (:pet_id, :name, :status, :weight, :valid_from, :actor_id)")
+            .param("pet_id", pet.id)
+            .param("name", newName)
+            .param("status", pet.status.name)
+            .param("weight", pet.weight)
+            .param("valid_from", Timestamp.from(clock.now().toJavaInstant()))
+            .param("actor_id", actorId)
+            .update()
+    }
+
+    override fun findPetIdsByAnyName(name: String): List<Long> {
+        return jdbcClient.sql("SELECT pet_id FROM pets WHERE name = :name")
+            .param("name", name)
+            .query { resultSet, _ -> resultSet.getLong("pet_id") }
+            .list()
     }
 }
