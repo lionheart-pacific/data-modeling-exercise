@@ -5,13 +5,14 @@ import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import java.sql.Timestamp
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
 
 class PetRepositoryAuditLog(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
-) : Step3PetRepository {
+) : Step4PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
         jdbcClient.sql("INSERT INTO pets (name, status) VALUES (:name, :status)")
@@ -50,10 +51,11 @@ class PetRepositoryAuditLog(
             .param("weight", weight)
             .update()
 
-        jdbcClient.sql("INSERT INTO weight_history (pet_id, weight, recorded_at) VALUES (:pet_id, :weight, :recorded_at)")
+        jdbcClient.sql("INSERT INTO weight_history (pet_id, weight, recorded_at, actor_id) VALUES (:pet_id, :weight, :recorded_at, :actor_id)")
             .param("pet_id", id)
             .param("weight", weight)
             .param("recorded_at", Timestamp.from(clock.now().toJavaInstant()))
+            .param("actor_id", actorId)
             .update()
     }
 
@@ -68,5 +70,29 @@ class PetRepositoryAuditLog(
             }
             .list()
             .let { WeightChart(entries = it) }
+    }
+
+    override fun getWeighInLeaderboard(window: Duration): WeighInLeaderboard {
+        val startTime = clock.now().minus(window)
+        return jdbcClient.sql(
+            """
+            SELECT 
+                actor_id, 
+                COUNT(*) AS weigh_in_count
+            FROM weight_history
+            WHERE recorded_at >= :start_time
+            GROUP BY actor_id
+            ORDER BY weigh_in_count DESC;
+            """.trimIndent()
+        )
+            .param("start_time", Timestamp.from(startTime.toJavaInstant()))
+            .query { resultSet, _ ->
+                WeighInLeaderboardEntry(
+                    actorId = resultSet.getLong("actor_id"),
+                    weighIns = resultSet.getInt("weigh_in_count"),
+                )
+            }
+            .list()
+            .let { WeighInLeaderboard(entries = it) }
     }
 }

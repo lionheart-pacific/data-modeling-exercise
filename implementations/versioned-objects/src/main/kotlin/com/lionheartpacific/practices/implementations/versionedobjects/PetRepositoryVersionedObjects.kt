@@ -5,13 +5,14 @@ import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import java.sql.Timestamp
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
 
 class PetRepositoryVersionedObjects(
     private val jdbcClient: JdbcClient,
     private val clock: Clock,
-) : Step3PetRepository {
+) : Step4PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
         jdbcClient.sql("INSERT INTO pets (name, status, valid_from) VALUES (:name, :status, :valid_from)")
@@ -83,5 +84,9 @@ class PetRepositoryVersionedObjects(
             }
             .list()
             .let { WeightChart(entries = it) }
+    }
+
+    override fun getWeighInLeaderboard(window: Duration): WeighInLeaderboard {
+        return WeighInLeaderboard(entries = emptyList())
     }
 }
