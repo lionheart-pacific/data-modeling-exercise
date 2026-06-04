@@ -1,0 +1,2 @@
+ALTER TABLE pets
+    ADD COLUMN actor_id BIGINT NOT NULL;

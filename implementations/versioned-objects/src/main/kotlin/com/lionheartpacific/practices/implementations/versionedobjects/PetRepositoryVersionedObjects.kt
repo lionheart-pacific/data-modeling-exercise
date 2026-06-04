@@ -15,10 +15,11 @@ class PetRepositoryVersionedObjects(
 ) : Step4PetRepository {
     override fun create(request: PetRequest, actorId: Long): Long {
         val keyHolder = GeneratedKeyHolder()
-        jdbcClient.sql("INSERT INTO pets (name, status, valid_from) VALUES (:name, :status, :valid_from)")
+        jdbcClient.sql("INSERT INTO pets (name, status, valid_from, actor_id) VALUES (:name, :status, :valid_from, :actor_id)")
             .param("name", request.name)
             .param("status", PetStatus.AVAILABLE.name)
             .param("valid_from", Timestamp.from(clock.now().toJavaInstant()))
+            .param("actor_id", actorId)
             .update(keyHolder, "pet_id")
         return keyHolder.key?.toLong() ?: error("INSERT did not return a generated key")
     }
@@ -31,11 +32,12 @@ class PetRepositoryVersionedObjects(
             .param("valid_to", Timestamp.from(clock.now().toJavaInstant()))
             .update()
 
-        jdbcClient.sql("INSERT INTO pets (pet_id, name, status, valid_from) VALUES (:pet_id, :name, :status, :valid_from)")
+        jdbcClient.sql("INSERT INTO pets (pet_id, name, status, valid_from, actor_id) VALUES (:pet_id, :name, :status, :valid_from, :actor_id)")
             .param("pet_id", pet.id)
             .param("name", pet.name)
             .param("status", status.name)
             .param("valid_from", Timestamp.from(clock.now().toJavaInstant()))
+            .param("actor_id", actorId)
             // TODO tests didn't make us add weight here
             .update()
     }
@@ -64,12 +66,13 @@ class PetRepositoryVersionedObjects(
             .param("valid_to", Timestamp.from(clock.now().toJavaInstant()))
             .update()
 
-        jdbcClient.sql("INSERT INTO pets (pet_id, name, status, weight, valid_from) VALUES (:pet_id, :name, :status, :weight, :valid_from)")
+        jdbcClient.sql("INSERT INTO pets (pet_id, name, status, weight, valid_from, actor_id) VALUES (:pet_id, :name, :status, :weight, :valid_from, :actor_id)")
             .param("pet_id", pet.id)
             .param("name", pet.name)
             .param("status", pet.status.name)
             .param("weight", weight)
             .param("valid_from", Timestamp.from(clock.now().toJavaInstant()))
+            .param("actor_id", actorId)
             .update()
     }
 
@@ -87,6 +90,26 @@ class PetRepositoryVersionedObjects(
     }
 
     override fun getWeighInLeaderboard(window: Duration): WeighInLeaderboard {
-        return WeighInLeaderboard(entries = emptyList())
+        val now = clock.now()
+        return jdbcClient.sql(
+            """
+            SELECT actor_id, COUNT(*) AS weigh_ins
+            FROM pets
+            WHERE valid_from BETWEEN :start_timestamp AND :end_timestamp
+            GROUP BY actor_id
+            ORDER BY weigh_ins DESC;
+            """.trimIndent()
+        )
+            // TODO test didn't require to add condition `AND weight IS NOT NULL`
+            .param("start_timestamp", Timestamp.from(now.minus(window).toJavaInstant()))
+            .param("end_timestamp", Timestamp.from(now.toJavaInstant()))
+            .query { resultSet, _ ->
+                WeighInLeaderboardEntry(
+                    actorId = resultSet.getLong("actor_id"),
+                    weighIns = resultSet.getLong("weigh_ins").toInt(),
+                )
+            }
+            .list()
+            .let { WeighInLeaderboard(entries = it) }
     }
 }
